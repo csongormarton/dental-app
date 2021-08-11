@@ -23,6 +23,7 @@ function initCalendar() {
     calendar = new Calendar(calendarEl, {
         plugins: [rrulePlugin, dayGridPlugin, timeGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
+        selectOverlap: selectOverlap,
         selectable: true,
         firstDay: 1,
         weekNumbers: true,
@@ -38,11 +39,19 @@ function initCalendar() {
     calendar.render();
 }
 
+function selectOverlap(event) {
+    if (calendar.view.type !== 'timeGridDay') {
+        calendar.changeView('timeGridDay');
+        calendar.gotoDate(event.startStr);
+    }
+    return false;
+}
+
 function select(info) {
     if (!document.getElementById('reservation-modal').classList.contains('hidden')) {
         window.toggleModal('reservation-modal');
     }
-    if (info.view.type !== 'timeGridDay') {
+    if (calendar.view.type !== 'timeGridDay') {
         calendar.changeView('timeGridDay');
         calendar.gotoDate(info.startStr);
         return;
@@ -93,6 +102,14 @@ function prepareFormData() {
     return data;
 }
 
+function processResponse(type, data) {
+    window.toggleNotification(type, data.message);
+    window.toggleModal('reservation-modal');
+    window.scrollTo(0, 0);
+    calendar.removeAllEvents();
+    getReservationsFromServer();
+}
+
 window.addNewReservation = function () {
     clientName = document.getElementById('client-name').value;
     reservationType = document.querySelector('input[name="reservation_type"]:checked').value;
@@ -105,14 +122,6 @@ window.addNewReservation = function () {
         }).catch((error) => {
         processResponse('error', error.response.data);
     })
-}
-
-function processResponse(type, data) {
-    window.toggleNotification(type, data.message);
-    window.toggleModal('reservation-modal');
-    window.scrollTo(0, 0);
-    calendar.removeAllEvents();
-    getReservationsFromServer();
 }
 
 window.toggleModal = function (modalID) {

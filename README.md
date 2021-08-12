@@ -5,6 +5,7 @@ This is a test project.
 ### Setup
 
 - <code>npm install</code></br>
+- <code>composer install</code></br>
 - Create .env from .env.example (set database credentials)</br>
 - <code>php artisan key:generate</code>
 - <code>php artisan migrate</code>
